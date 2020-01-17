@@ -11,7 +11,7 @@ ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/flask-test'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/testdb01'
 else:
     app.debug = False
     app.config['SQLALCHEMY_DATABASE_URI'] = ''
@@ -32,17 +32,17 @@ from Metrics import *
 # Create a Metric
 @app.route('/metric', methods=['POST'])
 def add_metric():
-    file = open(key_path, 'rb')
-    key = file.read()
-    file.close()
+    # file = open(key_path, 'rb')
+    # key = file.read()
+    # file.close()
 
     algorithm_name = request.json['algorithm_name']
     encrypted_dataset_hash = request.json['dataset_hash']
     metric_name = request.json['metric_name']
     metric_value = request.json['metric_value']
 
-    f = Fernet(key)
-    dataset_hash = f.decrypt(bytes(encrypted_dataset_hash, encoding='UTF-8')).decode('utf-8')
+    # f = Fernet(key)
+    # dataset_hash = f.decrypt(bytes(encrypted_dataset_hash, encoding='UTF-8')).decode('utf-8')
     new_metric = Metric(algorithm_name, encrypted_dataset_hash, metric_name, metric_value)
 
     db.session.add(new_metric)
