@@ -2,6 +2,8 @@ import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from cryptography.fernet import Fernet
+from encryption.key import FMLKey
 
 
 app = Flask(__name__)
@@ -57,6 +59,20 @@ def get_metrics():
 def get_metric(id):
     metric = Metric.query.get(id)
     return metric_schema.jsonify(metric)
+
+
+# Get Single Decrypted Metric
+@app.route('/metric/<id>/decrypt', methods=['GET'])
+def get_decrypted_metric(id):
+    metric = Metric.query.get(id)
+    
+    key = FMLKey()
+    f = Fernet(key.getKey())
+    dataset_unhashed = f.decrypt(bytes(metric.dataset_hash, encoding='UTF-8')).decode('utf-8')
+
+    new_metric = Metric(metric.algorithm_name, dataset_unhashed, metric.metric_name, metric.metric_value)
+    new_metric.id = metric.id
+    return metric_schema.jsonify(new_metric)
 
 
 # Update a Metric
