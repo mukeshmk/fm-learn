@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from cryptography.fernet import Fernet
 
 
 app = Flask(__name__)
@@ -23,26 +22,16 @@ db = SQLAlchemy(app)
 # Init ma
 ma = Marshmallow(app)
 
-script_dir = os.path.dirname(__file__)
-rel_path = "encription/key.key"
-key_path = os.path.join(script_dir, rel_path)
-
 from Metrics import *
 
 # Create a Metric
 @app.route('/metric', methods=['POST'])
 def add_metric():
-    # file = open(key_path, 'rb')
-    # key = file.read()
-    # file.close()
-
     algorithm_name = request.json['algorithm_name']
     encrypted_dataset_hash = request.json['dataset_hash']
     metric_name = request.json['metric_name']
     metric_value = request.json['metric_value']
-
-    # f = Fernet(key)
-    # dataset_hash = f.decrypt(bytes(encrypted_dataset_hash, encoding='UTF-8')).decode('utf-8')
+    
     new_metric = Metric(algorithm_name, encrypted_dataset_hash, metric_name, metric_value)
 
     db.session.add(new_metric)
@@ -66,8 +55,8 @@ def get_metrics():
 # Get Single Metric
 @app.route('/metric/<id>', methods=['GET'])
 def get_metric(id):
-    metirc = Metric.query.get(id)
-    return metric_schema.jsonify(metirc)
+    metric = Metric.query.get(id)
+    return metric_schema.jsonify(metric)
 
 
 # Update a Metric
