@@ -88,6 +88,28 @@ def delete_metric(id):
 
     return metric_schema.jsonify(metric)
 
+# Retrieve all metric that matches the dataset_hash
+@app.route('/metric/retrieve/all', methods=['POST'])
+def retrieve_algorithm_list():
+    dataset_hash = request.json['dataset_hash']
+    all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
+    result = metrics_schema.dump(all_metrics)
+    return jsonify(result)
+
+
+# Retrieve metric that best matches the dataset_hash
+@app.route('/metric/retrieve/best', methods=['POST'])
+def retrieve_algorithm_best():
+    dataset_hash = request.json['dataset_hash']
+
+    metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
+
+    all_metrics = db.engine.connect().execute(
+        db.select([metric])
+        .order_by(db.desc(metric.columns.metric_value))
+        .where(metric.columns.dataset_hash.in_([dataset_hash]))
+    ).first()
+    return metric_schema.jsonify(all_metrics)
 
 # Run Server
 if __name__ == '__main__':
