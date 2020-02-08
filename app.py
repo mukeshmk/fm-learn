@@ -106,7 +106,7 @@ def retrieve_algorithm_best():
 
     all_metrics = db.engine.connect().execute(
         db.select([metric])
-        .order_by(db.desc(metric.columns.metric_value))
+        .order_by(db.asc(metric.columns.metric_value))
         .where(metric.columns.dataset_hash.in_([dataset_hash]))
     ).first()
     return metric_schema.jsonify(all_metrics)
