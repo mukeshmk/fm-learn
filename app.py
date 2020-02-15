@@ -28,7 +28,7 @@ from Metrics import *
 @app.route('/metric', methods=['POST'])
 def add_metric():
     algorithm_name = request.json['algorithm_name']
-    dataset_hash = request.json['dataset_hash']
+    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
     metric_name = request.json['metric_name']
     metric_value = request.json['metric_value']
     
@@ -64,15 +64,10 @@ def get_metric(id):
 def update_metric(id):
     metric = Metric.query.get(id)
 
-    algorithm_name = request.json['algorithm_name']
-    dataset_hash = request.json['dataset_hash']
-    metric_name = request.json['metric_name']
-    metric_value = request.json['metric_value']
-
-    metric.algorithm_name = algorithm_name
-    metric.dataset_hash = dataset_hash
-    metric.metric_name = metric_name
-    metric.metric_value = metric_value
+    metric.algorithm_name = request.json['algorithm_name']
+    metric.dataset_hash = request.json['dataset_hash'].replace("\x00", "")
+    metric.metric_name = request.json['metric_name']
+    metric.metric_value = request.json['metric_value']
 
     db.session.commit()
 
@@ -91,7 +86,8 @@ def delete_metric(id):
 # Retrieve all metric that matches the dataset_hash
 @app.route('/metric/retrieve/all', methods=['POST'])
 def retrieve_algorithm_list():
-    dataset_hash = request.json['dataset_hash']
+    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
+
     all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
     result = metrics_schema.dump(all_metrics)
     return jsonify(result)
@@ -100,7 +96,7 @@ def retrieve_algorithm_list():
 # Retrieve metric that best matches the dataset_hash
 @app.route('/metric/retrieve/min', methods=['POST'])
 def retrieve_algorithm_best_min():
-    dataset_hash = request.json['dataset_hash']
+    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
     metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
 
@@ -114,7 +110,7 @@ def retrieve_algorithm_best_min():
 # Retrieve metric that best matches the dataset_hash
 @app.route('/metric/retrieve/max', methods=['POST'])
 def retrieve_algorithm_best_max():
-    dataset_hash = request.json['dataset_hash']
+    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
     metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
 
@@ -124,6 +120,7 @@ def retrieve_algorithm_best_max():
         .where(metric.columns.dataset_hash.in_([dataset_hash]))
     ).first()
     return metric_schema.jsonify(all_metrics)
+
 # Run Server
 if __name__ == '__main__':
     app.run()
