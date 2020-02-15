@@ -98,8 +98,8 @@ def retrieve_algorithm_list():
 
 
 # Retrieve metric that best matches the dataset_hash
-@app.route('/metric/retrieve/best', methods=['POST'])
-def retrieve_algorithm_best():
+@app.route('/metric/retrieve/min', methods=['POST'])
+def retrieve_algorithm_best_min():
     dataset_hash = request.json['dataset_hash']
 
     metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
@@ -111,6 +111,19 @@ def retrieve_algorithm_best():
     ).first()
     return metric_schema.jsonify(all_metrics)
 
+# Retrieve metric that best matches the dataset_hash
+@app.route('/metric/retrieve/max', methods=['POST'])
+def retrieve_algorithm_best_max():
+    dataset_hash = request.json['dataset_hash']
+
+    metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
+
+    all_metrics = db.engine.connect().execute(
+        db.select([metric])
+        .order_by(db.desc(metric.columns.metric_value))
+        .where(metric.columns.dataset_hash.in_([dataset_hash]))
+    ).first()
+    return metric_schema.jsonify(all_metrics)
 # Run Server
 if __name__ == '__main__':
     app.run()
