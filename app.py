@@ -1,31 +1,31 @@
 import os
+from config import *
+from constants import *
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
-
 app = Flask(__name__)
-
-ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/testdb01'
+    app.config['SQLALCHEMY_DATABASE_URI'] = LOCAL_SQLALCHEMY_DATABASE_URI
 else:
     app.debug = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://zekyfooodqjhyo:6922052eb84615083581f2368c6485388a387a5aac6084cfe77c6155e2b55494@ec2-54-195-247-108.eu-west-1.compute.amazonaws.com:5432/d6c5dgaj4odfug'
+    app.config['SQLALCHEMY_DATABASE_URI'] = SERVER_SQLALCHEMY_DATABASE_URI
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
 # Init db
 db = SQLAlchemy(app)
 # Init ma
 ma = Marshmallow(app)
 
-from Metrics import *
+from data_models.Metrics import *
+from data_models.Params import *
 
 # Create a Metric
-@app.route('/metric', methods=['POST'])
+@app.route(METRIC, methods=[POST])
 def add_metric():
     algorithm_name = request.json['algorithm_name']
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
@@ -37,12 +37,22 @@ def add_metric():
     db.session.add(new_metric)
     db.session.commit()
 
+    params = request.json['params']
+    if(params != ""):
+        for param in params:
+            new_params = Params(new_metric.id, param['param_name'], param['param_value'])
+            db.session.add(new_params)
+    db.session.commit()
+
+    #new_metric = Metric.query.get(new_metric.id)
+    print(metric_schema.dump(new_metric))
+
     return metric_schema.jsonify(new_metric)
 
 
 
 # Get All Metrics
-@app.route('/metric', methods=['GET'])
+@app.route(METRIC, methods=[GET])
 def get_metrics():
     all_metrics = Metric.query.all()
     result = metrics_schema.dump(all_metrics)
@@ -53,14 +63,14 @@ def get_metrics():
 
 
 # Get Single Metric
-@app.route('/metric/<id>', methods=['GET'])
+@app.route(METRIC + VAR_ID, methods=[GET])
 def get_metric(id):
     metric = Metric.query.get(id)
     return metric_schema.jsonify(metric)
 
 
 # Update a Metric
-@app.route('/metric/<id>', methods=['PUT'])
+@app.route(METRIC + VAR_ID, methods=[PUT])
 def update_metric(id):
     metric = Metric.query.get(id)
 
@@ -75,7 +85,7 @@ def update_metric(id):
 
 
 # Delete Metric
-@app.route('/metric/<id>', methods=['DELETE'])
+@app.route(METRIC + VAR_ID, methods=[DEL])
 def delete_metric(id):
     metric = Metric.query.get(id)
     db.session.delete(metric)
@@ -84,42 +94,32 @@ def delete_metric(id):
     return metric_schema.jsonify(metric)
 
 # Retrieve all metric that matches the dataset_hash
-@app.route('/metric/retrieve/all', methods=['POST'])
+@app.route(METRIC + RETRIEVE + ALL, methods=[POST])
 def retrieve_algorithm_list():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
     all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
-    result = metrics_schema.dump(all_metrics)
-    return jsonify(result)
+    
+    return metrics_schema.jsonify(all_metrics)
 
 
 # Retrieve metric that best matches the dataset_hash
-@app.route('/metric/retrieve/min', methods=['POST'])
+@app.route(METRIC + RETRIEVE + MIN, methods=[POST])
 def retrieve_algorithm_best_min():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
-    metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
+    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first()
 
-    all_metrics = db.engine.connect().execute(
-        db.select([metric])
-        .order_by(db.asc(metric.columns.metric_value))
-        .where(metric.columns.dataset_hash.in_([dataset_hash]))
-    ).first()
-    return metric_schema.jsonify(all_metrics)
+    return metric_schema.jsonify(metric)
 
 # Retrieve metric that best matches the dataset_hash
-@app.route('/metric/retrieve/max', methods=['POST'])
+@app.route(METRIC + RETRIEVE + MAX, methods=[POST])
 def retrieve_algorithm_best_max():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
-    metric = db.Table('metrics', db.metadata, autoload=True, autoload_with=db.engine)
+    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
 
-    all_metrics = db.engine.connect().execute(
-        db.select([metric])
-        .order_by(db.desc(metric.columns.metric_value))
-        .where(metric.columns.dataset_hash.in_([dataset_hash]))
-    ).first()
-    return metric_schema.jsonify(all_metrics)
+    return metric_schema.jsonify(metric)
 
 # Run Server
 if __name__ == '__main__':
