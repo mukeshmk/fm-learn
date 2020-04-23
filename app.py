@@ -35,7 +35,7 @@ def add_metric():
 
     target_type = request.json['target_type']
 
-    new_metric = Metric(algorithm_name, dataset_hash, metric_name, metric_value)
+    new_metric = Metric(algorithm_name, dataset_hash, metric_name, metric_value, target_type)
 
     db.session.add(new_metric)
     db.session.commit()
