@@ -1,8 +1,9 @@
 from app import db, ma
 from data_models.Params import ParamSchema
-from constants import TABLE_METRIC, CLASS_PARAM
+from data_models.MetaFeatures import MetaFeatureSchema
+from constants import TABLE_METRIC, CLASS_PARAM, CLASS_META_FEATURE
 
-# Product Class/Model
+# Metric Class/Model
 class Metric(db.Model):
     __tablename__ = TABLE_METRIC
     id = db.Column(db.Integer, primary_key=True)
@@ -11,6 +12,7 @@ class Metric(db.Model):
     metric_name = db.Column(db.String(200))
     metric_value = db.Column(db.Float)
     params = db.relationship(CLASS_PARAM, cascade = "all, delete", backref=TABLE_METRIC, lazy=True)
+    meta_features = db.relationship(CLASS_META_FEATURE, cascade = "all, delete", backref=TABLE_METRIC, lazy=True)
 
     def __init__(self, algorithm_name, dataset_hash, metric_name, metric_value):
         self.algorithm_name = algorithm_name
@@ -19,11 +21,12 @@ class Metric(db.Model):
         self.metric_value = metric_value
 
 
-# Product Schema
+# Metric Schema
 class MetricSchema(ma.Schema):
     params = ma.Nested(ParamSchema, many=True)
+    meta_features = ma.Nested(MetaFeatureSchema, many=True)
     class Meta:
-        fields = ('id', 'algorithm_name', 'dataset_hash', 'metric_name', 'metric_value', 'params')
+        fields = ('id', 'algorithm_name', 'dataset_hash', 'metric_name', 'metric_value', 'params', 'meta_features')
         include_fk = True
 
 

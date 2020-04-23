@@ -2,7 +2,7 @@ from app import db, ma
 from constants import TABLE_PARAM
 
 
-# Product Class/Model
+# Param Class/Model
 class Params(db.Model):
     __tablename__ = TABLE_PARAM
     id = db.Column(db.Integer, primary_key=True)
@@ -16,7 +16,7 @@ class Params(db.Model):
         self.param_value = param_value
 
 
-# Product Schema
+# Param Schema
 class ParamSchema(ma.Schema):
     class Meta:
         fields = ('id', 'metric_id', 'param_name', 'param_value')

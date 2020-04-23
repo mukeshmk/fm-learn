@@ -23,6 +23,7 @@ ma = Marshmallow(app)
 
 from data_models.Metrics import *
 from data_models.Params import *
+from data_models.MetaFeatures import *
 
 # Create a Metric
 @app.route(METRIC, methods=[POST])
@@ -31,7 +32,9 @@ def add_metric():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
     metric_name = request.json['metric_name']
     metric_value = request.json['metric_value']
-    
+
+    target_type = request.json['target_type']
+
     new_metric = Metric(algorithm_name, dataset_hash, metric_name, metric_value)
 
     db.session.add(new_metric)
@@ -44,8 +47,12 @@ def add_metric():
             db.session.add(new_params)
     db.session.commit()
 
-    #new_metric = Metric.query.get(new_metric.id)
-    print(metric_schema.dump(new_metric))
+    data_meta_features = request.json['data_meta_features']
+    if(data_meta_features != ""):
+        for feat in data_meta_features:
+            new_feat = MetaFeature(new_metric.id, feat['feat_name'], feat['feat_value'])
+            db.session.add(new_feat)
+    db.session.commit()
 
     return metric_schema.jsonify(new_metric)
 
