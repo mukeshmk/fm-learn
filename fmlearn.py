@@ -8,10 +8,10 @@ def kmc():
     df = utils.get_df_from_db()
 
     df, _ = utils.ohe_feature(df, utils.TARGET_TYPE)
-    df, _ = utils.label_encode_feature(df, utils.ALGORITHM_NAME)
-    df, _ = utils.label_encode_feature(df, utils.METRIC_NAME)
-    
     X, y = utils.get_Xy(df)
+
+    y, _ = utils.ohe_feature(y, utils.ALGORITHM_NAME, False)
+    y, _ = utils.ohe_feature(y, utils.METRIC_NAME, False)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
 
