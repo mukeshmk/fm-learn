@@ -11,9 +11,9 @@ METRIC_VALUE = 'Metric Value'
 
 def get_df_from_db():
     all_metrics = Metric.query.all()
-
-    data = {}
+    df = pd.DataFrame()
     for metric in all_metrics:
+        data = {}
         if TARGET_TYPE not in data:
             data[TARGET_TYPE] = []
         data[TARGET_TYPE].append(str(metric.target_type))
@@ -34,9 +34,10 @@ def get_df_from_db():
         if METRIC_VALUE not in data:
             data[METRIC_VALUE] = []
         data[METRIC_VALUE].append(float(metric.metric_value))
+        
+        df = df.append(pd.DataFrame.from_dict(data))
 
-    df = pd.DataFrame.from_dict(data)
-    return df
+    return df.reset_index()
 
 
 def get_Xy(df):
