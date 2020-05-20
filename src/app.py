@@ -1,6 +1,6 @@
 import os
 from config import *
-from constants import *
+from utils.constants import *
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow

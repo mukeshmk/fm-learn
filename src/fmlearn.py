@@ -1,5 +1,5 @@
 import pandas as pd
-import utils
+from utils import utils
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
