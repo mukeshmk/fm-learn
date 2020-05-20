@@ -1,7 +1,7 @@
 import os
 from config import *
 from utils.constants import *
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -24,6 +24,10 @@ ma = Marshmallow(app)
 from data_models.Metrics import *
 from data_models.Params import *
 from data_models.MetaFeatures import *
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # Create a Metric
 @app.route(METRIC, methods=[POST])
