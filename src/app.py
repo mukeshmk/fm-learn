@@ -25,11 +25,16 @@ from data_models.Metrics import *
 from data_models.Params import *
 from data_models.MetaFeatures import *
 
-# added root route for webpage
+# added route for index.html webpage
 @app.route('/')
 @app.route('/index.html')
 def index():
     return render_template('index.html')
+
+# added route for api-description webpage
+@app.route('/api-description.html')
+def apidescription():
+    return render_template('api-description.html')
 
 # Create a Metric
 @app.route(METRIC, methods=[POST])
