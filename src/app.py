@@ -25,7 +25,9 @@ from data_models.Metrics import *
 from data_models.Params import *
 from data_models.MetaFeatures import *
 
+# added root route for webpage
 @app.route('/')
+@app.route('/index.html')
 def index():
     return render_template('index.html')
 
