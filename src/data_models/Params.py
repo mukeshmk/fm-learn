@@ -1,5 +1,5 @@
 from app import db, ma
-from utils.constants import TABLE_PARAM
+from src.utils.constants import TABLE_PARAM
 
 
 # Param Class/Model

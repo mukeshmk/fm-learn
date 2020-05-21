@@ -1,5 +1,5 @@
 from app import db, ma
-from utils.constants import TABLE_META_FEATURES
+from src.utils.constants import TABLE_META_FEATURES
 
 
 # Meta Feature Class/Model

@@ -1,43 +1,17 @@
-import os
-from config import *
-from utils.constants import *
-from flask import Flask, request, jsonify, render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from flask import Blueprint, Flask, request, jsonify
 
-app = Flask(__name__)
+from src.utils.constants import *
 
-if ENV == 'dev':
-    app.debug = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = LOCAL_SQLALCHEMY_DATABASE_URI
-else:
-    app.debug = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = SERVER_SQLALCHEMY_DATABASE_URI
+metrics_api = Blueprint('metrics_api', __name__)
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+from src.data_models.Metrics import *
+from src.data_models.Params import *
+from src.data_models.MetaFeatures import *
 
-# Init db
-db = SQLAlchemy(app)
-# Init ma
-ma = Marshmallow(app)
-
-from data_models.Metrics import *
-from data_models.Params import *
-from data_models.MetaFeatures import *
-
-# added route for index.html webpage
-@app.route('/')
-@app.route('/index.html')
-def index():
-    return render_template('index.html')
-
-# added route for api-description webpage
-@app.route('/api-description.html')
-def apidescription():
-    return render_template('api-description.html')
+from app import db
 
 # Create a Metric
-@app.route(METRIC, methods=[POST])
+@metrics_api.route(METRIC, methods=[POST])
 def add_metric():
     algorithm_name = request.json['algorithm_name']
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
@@ -70,7 +44,7 @@ def add_metric():
 
 
 # Get All Metrics
-@app.route(METRIC, methods=[GET])
+@metrics_api.route(METRIC, methods=[GET])
 def get_metrics():
     all_metrics = Metric.query.all()
     result = metrics_schema.dump(all_metrics)
@@ -81,14 +55,14 @@ def get_metrics():
 
 
 # Get Single Metric
-@app.route(METRIC + VAR_ID, methods=[GET])
+@metrics_api.route(METRIC + VAR_ID, methods=[GET])
 def get_metric(id):
     metric = Metric.query.get(id)
     return metric_schema.jsonify(metric)
 
 
 # Update a Metric
-@app.route(METRIC + VAR_ID, methods=[PUT])
+@metrics_api.route(METRIC + VAR_ID, methods=[PUT])
 def update_metric(id):
     metric = Metric.query.get(id)
 
@@ -103,7 +77,7 @@ def update_metric(id):
 
 
 # Delete Metric
-@app.route(METRIC + VAR_ID, methods=[DEL])
+@metrics_api.route(METRIC + VAR_ID, methods=[DEL])
 def delete_metric(id):
     metric = Metric.query.get(id)
     db.session.delete(metric)
@@ -112,7 +86,7 @@ def delete_metric(id):
     return metric_schema.jsonify(metric)
 
 # Retrieve all metric that matches the dataset_hash
-@app.route(METRIC + RETRIEVE + ALL, methods=[POST])
+@metrics_api.route(METRIC + RETRIEVE + ALL, methods=[POST])
 def retrieve_algorithm_list():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
@@ -122,7 +96,7 @@ def retrieve_algorithm_list():
 
 
 # Retrieve metric that best matches the dataset_hash
-@app.route(METRIC + RETRIEVE + MIN, methods=[POST])
+@metrics_api.route(METRIC + RETRIEVE + MIN, methods=[POST])
 def retrieve_algorithm_best_min():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
@@ -131,14 +105,10 @@ def retrieve_algorithm_best_min():
     return metric_schema.jsonify(metric)
 
 # Retrieve metric that best matches the dataset_hash
-@app.route(METRIC + RETRIEVE + MAX, methods=[POST])
+@metrics_api.route(METRIC + RETRIEVE + MAX, methods=[POST])
 def retrieve_algorithm_best_max():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
     metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
 
     return metric_schema.jsonify(metric)
-
-# Run Server
-if __name__ == '__main__':
-    app.run()

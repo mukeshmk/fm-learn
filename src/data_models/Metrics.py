@@ -1,7 +1,7 @@
 from app import db, ma
-from data_models.Params import ParamSchema
-from data_models.MetaFeatures import MetaFeatureSchema
-from utils.constants import TABLE_METRIC, CLASS_PARAM, CLASS_META_FEATURE
+from src.data_models.Params import ParamSchema
+from src.data_models.MetaFeatures import MetaFeatureSchema
+from src.utils.constants import TABLE_METRIC, CLASS_PARAM, CLASS_META_FEATURE
 
 # Metric Class/Model
 class Metric(db.Model):
