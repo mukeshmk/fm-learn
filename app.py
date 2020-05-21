@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 from src.config import *
+from src.utils.constants import METRIC
 
 app = Flask(__name__, template_folder='src/templates', static_folder='src/static')
 
@@ -22,7 +23,7 @@ ma = Marshmallow(app)
 
 from src.api import metrics_api
 
-app.register_blueprint(metrics_api, url_prefix='')
+app.register_blueprint(metrics_api, url_prefix=METRIC)
 
 # added route for index.html webpage
 @app.route('/')

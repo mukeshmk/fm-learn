@@ -11,7 +11,7 @@ from src.data_models.MetaFeatures import *
 from app import db
 
 # Create a Metric
-@metrics_api.route(METRIC, methods=[POST])
+@metrics_api.route('', methods=[POST])
 def add_metric():
     algorithm_name = request.json['algorithm_name']
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
@@ -44,7 +44,7 @@ def add_metric():
 
 
 # Get All Metrics
-@metrics_api.route(METRIC, methods=[GET])
+@metrics_api.route('', methods=[GET])
 def get_metrics():
     all_metrics = Metric.query.all()
     result = metrics_schema.dump(all_metrics)
@@ -55,14 +55,14 @@ def get_metrics():
 
 
 # Get Single Metric
-@metrics_api.route(METRIC + VAR_ID, methods=[GET])
+@metrics_api.route(VAR_ID, methods=[GET])
 def get_metric(id):
     metric = Metric.query.get(id)
     return metric_schema.jsonify(metric)
 
 
 # Update a Metric
-@metrics_api.route(METRIC + VAR_ID, methods=[PUT])
+@metrics_api.route(VAR_ID, methods=[PUT])
 def update_metric(id):
     metric = Metric.query.get(id)
 
@@ -77,7 +77,7 @@ def update_metric(id):
 
 
 # Delete Metric
-@metrics_api.route(METRIC + VAR_ID, methods=[DEL])
+@metrics_api.route(VAR_ID, methods=[DEL])
 def delete_metric(id):
     metric = Metric.query.get(id)
     db.session.delete(metric)
@@ -86,7 +86,7 @@ def delete_metric(id):
     return metric_schema.jsonify(metric)
 
 # Retrieve all metric that matches the dataset_hash
-@metrics_api.route(METRIC + RETRIEVE + ALL, methods=[POST])
+@metrics_api.route(RETRIEVE + ALL, methods=[POST])
 def retrieve_algorithm_list():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
@@ -96,7 +96,7 @@ def retrieve_algorithm_list():
 
 
 # Retrieve metric that best matches the dataset_hash
-@metrics_api.route(METRIC + RETRIEVE + MIN, methods=[POST])
+@metrics_api.route(RETRIEVE + MIN, methods=[POST])
 def retrieve_algorithm_best_min():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
@@ -105,7 +105,7 @@ def retrieve_algorithm_best_min():
     return metric_schema.jsonify(metric)
 
 # Retrieve metric that best matches the dataset_hash
-@metrics_api.route(METRIC + RETRIEVE + MAX, methods=[POST])
+@metrics_api.route(RETRIEVE + MAX, methods=[POST])
 def retrieve_algorithm_best_max():
     dataset_hash = request.json['dataset_hash'].replace("\x00", "")
 
