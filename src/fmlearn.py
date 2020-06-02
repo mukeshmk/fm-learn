@@ -1,8 +1,8 @@
 import pandas as pd
-import utils
-
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
+
+from src.utils import utils
 
 def kmc():
     df = utils.get_df_from_db()
@@ -27,7 +27,7 @@ def kmc():
 
     print(y_test.to_string(header=False))
     y_pred = pd.DataFrame(y_pred)
-    print(y_pred.to_string(header=False))
+    return y_pred.to_string(header=False)
 
 if __name__ == "__main__":
     kmc()

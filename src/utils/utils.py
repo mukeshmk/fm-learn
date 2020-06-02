@@ -1,8 +1,7 @@
 import pandas as pd
-
-from data_models.Metrics import Metric
-
 from sklearn import preprocessing as pp
+
+from src.data_models.Metrics import Metric
 
 TARGET_TYPE = 'Target Type'
 ALGORITHM_NAME = 'Algorithm Name'
