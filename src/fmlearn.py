@@ -99,9 +99,6 @@ class fmlearn:
             # kneighbors()[0] contains distances to points
             # kneighbors()[1] contains indcies of nearest points
             print(model.kneighbors(X_test)[1])
-            
+
             print(y_test.to_string(header=False))
             print(pd.DataFrame(y_pred).to_string(header=False))
-
-if __name__ == "__main__":
-    kmc()
