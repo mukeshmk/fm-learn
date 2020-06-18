@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -50,7 +50,7 @@ class fmlearn:
         self._model = KNeighborsClassifier()
         self._model.fit(X_train, y_train)
 
-        self._model_create_time = time.now()
+        self._model_create_time = datetime.now()
         
         y_pred = self._model.predict(X_test)
         self._accuracy = accuracy_score(y_test, y_pred)
