@@ -39,12 +39,4 @@ def apidescription():
 
 # Run Server
 if __name__ == '__main__':
-    # app.run()
-    
-    # NOTE: temp work around so that the server doesn't have to started to test
-    # the FMLearn algo. Need to remove once done with it.
-    from src.fmlearn import fmlearn
-
-    fml = fmlearn()
-    fml._test()
-    
+    app.run()

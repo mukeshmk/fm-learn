@@ -13,31 +13,31 @@ from app import db
 # Create a Metric
 @metrics_api.route('', methods=[POST])
 def add_metric():
-    algorithm_name = request.json['algorithm_name']
-    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
-    metric_name = request.json['metric_name']
-    metric_value = request.json['metric_value']
+    algorithm_name = request.json[ALGORITHM_NAME]
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
+    metric_name = request.json[METRIC_NAME]
+    metric_value = request.json[METRIC_VALUE]
 
-    target_type = request.json['target_type']
+    target_type = request.json[TARGET_TYPE]
 
     new_metric = Metric(algorithm_name, dataset_hash, metric_name, metric_value, target_type)
 
     db.session.add(new_metric)
     db.session.commit()
 
-    params = request.json['params']
+    params = request.json[PARAMS]
     if(params != ""):
         for param in params:
-            new_params = Params(new_metric.id, param['param_name'], param['param_value'])
+            new_params = Params(new_metric.id, param[PARAM_NAME], param[PARAM_VALUE])
             db.session.add(new_params)
-    db.session.commit()
+        db.session.commit()
 
-    data_meta_features = request.json['data_meta_features']
+    data_meta_features = request.json[META_FEATURES]
     if(data_meta_features != ""):
         for feat in data_meta_features:
-            new_feat = MetaFeature(new_metric.id, feat['feat_name'], feat['feat_value'])
+            new_feat = MetaFeature(new_metric.id, feat[FEAT_NAME], feat[FEAT_VALUE])
             db.session.add(new_feat)
-    db.session.commit()
+        db.session.commit()
 
     return metric_schema.jsonify(new_metric)
 
@@ -66,10 +66,10 @@ def get_metric(id):
 def update_metric(id):
     metric = Metric.query.get(id)
 
-    metric.algorithm_name = request.json['algorithm_name']
-    metric.dataset_hash = request.json['dataset_hash'].replace("\x00", "")
-    metric.metric_name = request.json['metric_name']
-    metric.metric_value = request.json['metric_value']
+    metric.algorithm_name = request.json[ALGORITHM_NAME]
+    metric.dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
+    metric.metric_name = request.json[METRIC_NAME]
+    metric.metric_value = request.json[METRIC_VALUE]
 
     db.session.commit()
 
@@ -88,7 +88,7 @@ def delete_metric(id):
 # Retrieve all metric that matches the dataset_hash
 @metrics_api.route(RETRIEVE + ALL, methods=[POST])
 def retrieve_algorithm_list():
-    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
 
     all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
     
@@ -98,7 +98,7 @@ def retrieve_algorithm_list():
 # Retrieve metric that best matches the dataset_hash
 @metrics_api.route(RETRIEVE + MIN, methods=[POST])
 def retrieve_algorithm_best_min():
-    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
 
     metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first()
 
@@ -107,7 +107,7 @@ def retrieve_algorithm_best_min():
 # Retrieve metric that best matches the dataset_hash
 @metrics_api.route(RETRIEVE + MAX, methods=[POST])
 def retrieve_algorithm_best_max():
-    dataset_hash = request.json['dataset_hash'].replace("\x00", "")
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
 
     metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
 
