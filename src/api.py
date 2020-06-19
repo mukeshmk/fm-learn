@@ -54,6 +54,38 @@ def add_metric():
     return metric_schema.jsonify(new_metric)
 
 
+# Retrieve all metric that matches the dataset_hash
+@metrics_api.route(RETRIEVE + ALL, methods=[POST])
+def retrieve_algorithm_list():
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
+
+    all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
+    
+    return metrics_schema.jsonify(all_metrics)
+
+
+# Retrieve metric that best matches the dataset_hash
+@metrics_api.route(RETRIEVE + MIN, methods=[POST])
+def retrieve_algorithm_best_min():
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
+
+    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first()
+
+    return metric_schema.jsonify(metric)
+
+
+# Retrieve metric that best matches the dataset_hash
+@metrics_api.route(RETRIEVE + MAX, methods=[POST])
+def retrieve_algorithm_best_max():
+    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
+
+    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
+
+    return metric_schema.jsonify(metric)
+
+
+########### API CURRENTLY NOT IN USE BY SCIKIT-LEARN ###########
+
 
 # Get All Metrics
 @metrics_api.route('', methods=[GET])
@@ -97,33 +129,6 @@ def delete_metric(id):
 
     return metric_schema.jsonify(metric)
 
-# Retrieve all metric that matches the dataset_hash
-@metrics_api.route(RETRIEVE + ALL, methods=[POST])
-def retrieve_algorithm_list():
-    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
-
-    all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
-    
-    return metrics_schema.jsonify(all_metrics)
-
-
-# Retrieve metric that best matches the dataset_hash
-@metrics_api.route(RETRIEVE + MIN, methods=[POST])
-def retrieve_algorithm_best_min():
-    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
-
-    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first()
-
-    return metric_schema.jsonify(metric)
-
-# Retrieve metric that best matches the dataset_hash
-@metrics_api.route(RETRIEVE + MAX, methods=[POST])
-def retrieve_algorithm_best_max():
-    dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
-
-    metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
-
-    return metric_schema.jsonify(metric)
 
 # test API for fmlearn
 # TODO: imporove performance? seems way too overcomplicated
