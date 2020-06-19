@@ -20,6 +20,14 @@ class fmlearn:
         # stores the time stamp of when the model was trained
         self._model_create_time = None
         self._accuracy = None
+        # to store feature encoders
+        self._encoders = {}
+
+    def get_encoders(self):
+        return self._encoders
+
+    def get_X_cols(self):
+        return self._X.columns
 
     def load_data(self):
         # TODO: force new model to be trained once data has been reloaded?
@@ -34,9 +42,11 @@ class fmlearn:
         self._X, self._y = utils.get_Xy(self._df)
 
         # pre processing of data
-        self._X, _ = utils.ohe_feature(self._X, utils.TARGET_TYPE)
+        self._X, tt_encoder = utils.ohe_feature(self._X, utils.TARGET_TYPE)
+        self._encoders[utils.TARGET_TYPE] = tt_encoder
 
-        self._y, _ = utils.label_encode_feature(self._y, utils.DATASET_HASH)
+        self._y, ds_hash_encoder = utils.label_encode_feature(self._y, utils.DATASET_HASH)
+        self._encoders[utils.DATASET_HASH] = ds_hash_encoder
 
     def train(self):
         # TODO: throw error if the data is not loaded before training.
