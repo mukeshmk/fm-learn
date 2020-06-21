@@ -49,11 +49,9 @@ class fmlearn:
         self._encoders[utils.DATASET_HASH] = ds_hash_encoder
 
     def train(self):
-        # TODO: throw error if the data is not loaded before training.
-        # remove the below work around.
+        #throw error if the data is not loaded before training.
         if self._X is None:
-            print('data not loaded! \nloading data and then training model')
-            self.load_data()
+            raise RuntimeError('data not loaded! \n`call function `load_data()` before train()')
 
         X_train, X_test, y_train, y_test = train_test_split(self._X, self._y, test_size=0.2, random_state=123)
         
@@ -74,7 +72,7 @@ class fmlearn:
 
         # check if the shape of the input df matches that used to train the model.
         if X_pred.shape[1] != self._X.shape[1]:
-            raise ValueError('Input Shape miss match! aborting!')
+            raise RuntimeError('Input Shape miss match! aborting!')
 
         y_pred = self._model.predict(X_pred)
 
