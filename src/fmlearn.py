@@ -70,8 +70,11 @@ class fmlearn:
         self.train()
 
     def predict(self, X_pred):
-        # TODO: check if the shape of the input df matches that used to train the model.
         # TODO: force retrain of model if the model is older than a set time frame?
+
+        # check if the shape of the input df matches that used to train the model.
+        if X_pred.shape[1] != self._X.shape[1]:
+            raise ValueError('Input Shape miss match! aborting!')
 
         y_pred = self._model.predict(X_pred)
 
