@@ -21,6 +21,7 @@ RETRIEVE = '/retrieve'
 ALL = '/all'
 MAX = '/max'
 MIN = '/min'
+PREDICT = '/predict'
 
 # JSON Constants
 ALGORITHM_NAME = 'algorithm_name'

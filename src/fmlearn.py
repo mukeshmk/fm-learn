@@ -49,7 +49,7 @@ class fmlearn:
         self._encoders[utils.DATASET_HASH] = ds_hash_encoder
 
     def train(self):
-        #throw error if the data is not loaded before training.
+        # throws error if the data is not loaded before training.
         if self._X is None:
             raise RuntimeError('data not loaded! \n`call function `load_data()` before train()')
 
@@ -76,10 +76,12 @@ class fmlearn:
 
         y_pred = self._model.predict(X_pred)
 
-        # TODO: return either the proper dataset_hash or
-        # the algorithm used by that dataset which is predicted.
+        # decodes the predicted value using the inverse_transform method of the encoder.
+        val = self._encoders[utils.DATASET_HASH].inverse_transform(y_pred)
 
-        return y_pred
+        # creates and returns a dataframe containing the all the metric records
+        # which match the predicted output of the model.    
+        return self._df[self._df[utils.DATASET_HASH] == val[0]]   
 
     def _test(self, print_details=False):
         # this function tests the entire functionality without affecting the class variables
