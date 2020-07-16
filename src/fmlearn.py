@@ -22,6 +22,8 @@ class fmlearn:
         self._accuracy = None
         # to store feature encoders
         self._encoders = {}
+        # boolean to track retraining of the model
+        self._retain = False
 
     def get_encoders(self):
         return self._encoders
@@ -30,7 +32,10 @@ class fmlearn:
         return self._X.columns
 
     def load_data(self):
-        # TODO: force new model to be trained once data has been reloaded?
+        # force new model to be trained once data has been reloaded
+        # retraining of model occurs only when the predict() function is being called
+        # this is due to absense of background processes framework in the application.
+        self._retain = True
 
         # loads data from the SQL database and pre-processes the data.
         self._df = utils.get_df_from_db()
@@ -68,11 +73,16 @@ class fmlearn:
         self.train()
 
     def predict(self, X_pred):
-        # TODO: force retrain of model if the model is older than a set time frame?
-
         # check if the shape of the input df matches that used to train the model.
         if X_pred.shape[1] != self._X.shape[1]:
             raise RuntimeError('Input Shape miss match! aborting!')
+
+        # TODO: force retrain of model if the model is older than a set time frame?
+        # or if a set of new data records have been added to the model.
+        # at this point reload the data and train the model.
+        if self._retain == True:
+            self.train()
+            self._retain = False
 
         y_pred = self._model.predict(X_pred)
 
