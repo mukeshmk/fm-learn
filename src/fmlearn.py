@@ -8,6 +8,8 @@ from src.utils import utils
 
 class fmlearn:
 
+    MAX_NEW_RECORDS = 10
+
     def __init__(self):
         self._X = None
         self._y = None
@@ -24,6 +26,9 @@ class fmlearn:
         self._encoders = {}
         # boolean to track retraining of the model
         self._retain = False
+        # counter to keep track of no of new records which were added to dataset
+        # after the last model was trained.
+        self._new_recs = 0
 
     def get_encoders(self):
         return self._encoders
@@ -31,11 +36,19 @@ class fmlearn:
     def get_X_cols(self):
         return self._X.columns
 
+    def new_record_added(self):
+        self._new_recs += 1
+        return
+
     def load_data(self):
         # force new model to be trained once data has been reloaded
         # retraining of model occurs only when the predict() function is being called
         # this is due to absense of background processes framework in the application.
         self._retain = True
+
+        # setting the new records which were added to the database after previous 
+        # model train to back to 0 as a new model will be force retainined after load_data()
+        self._new_recs = 0
 
         # loads data from the SQL database and pre-processes the data.
         self._df = utils.get_df_from_db()
@@ -58,6 +71,15 @@ class fmlearn:
         if self._X is None:
             raise RuntimeError('data not loaded! \n`call function `load_data()` before train()')
 
+        # force reloading the data before training as the no of new records 
+        # after the previous model was trained is >= MAX_NEW_RECORDS
+        if self._new_recs >= self.MAX_NEW_RECORDS:
+            self.load_data()
+            self._new_recs = 0
+
+        # since force retrain is possible
+        self._retain = False
+
         X_train, X_test, y_train, y_test = train_test_split(self._X, self._y, test_size=0.2, random_state=123)
         
         self._model = KNeighborsClassifier()
@@ -77,12 +99,11 @@ class fmlearn:
         if X_pred.shape[1] != self._X.shape[1]:
             raise RuntimeError('Input Shape miss match! aborting!')
 
-        # TODO: force retrain of model if the model is older than a set time frame?
-        # or if a set of new data records have been added to the model.
+        # force retrain of model if a set of new data records have been added to the model.
         # at this point reload the data and train the model.
-        if self._retain == True:
+        # or if the retrain flag is set to true because new data has been loaded
+        if self._retain == True or self._new_recs >= self.MAX_NEW_RECORDS:
             self.train()
-            self._retain = False
 
         y_pred = self._model.predict(X_pred)
 

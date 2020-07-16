@@ -50,6 +50,10 @@ def add_metric():
             new_feat = MetaFeature(new_metric.id, feat[FEAT_NAME], feat[FEAT_VALUE])
             db.session.add(new_feat)
         db.session.commit()
+    
+    # informing the FMLearn class that a new record was added to the database
+    # for keeping track of reloading data and retaning the models
+    fml.new_record_added()
 
     return metric_schema.jsonify(new_metric)
 
