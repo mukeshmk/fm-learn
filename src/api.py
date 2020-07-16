@@ -129,24 +129,27 @@ def predict_fmlearn():
     # FMLearn predict!!
     pred = fml.predict(df)
 
+    # get the dataset hash value
+    dataset_hash = pred[utils.DATASET_HASH].iloc[0]
+
     # get a list of metric types
     metric_types = pred[utils.METRIC_NAME].unique().tolist()
 
-    res = pd.DataFrame(columns = pred.columns)
+    res = []
     
     # TODO: have a restriction to 'Metric Name' allowed in the dataset
     # probably define an enum? and have checks
     for metric_type in metric_types:
         if metric_type.lower() == 'accuracy':
-            res = res.append(pred.max(), ignore_index=True)
+            res.append(Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first())
         elif metric_type.lower() == 'rmse':
-            res = res.append(pred.min(), ignore_index=True)
+            res.append(Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first())
         elif metric_type.lower() == 'mae':
-            res = res.append(pred.min(), ignore_index=True)
+            res.append(Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first())
         elif metric_type.lower() == 'r2 score':
-            res = res.append(pred.min(), ignore_index=True)
+            res.append(Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first())
     
-    return str(res)
+    return metrics_schema.jsonify(res)
 
 
 ########### API CURRENTLY NOT IN USE BY SCIKIT-LEARN ###########
