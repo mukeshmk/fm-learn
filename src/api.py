@@ -1,5 +1,7 @@
-from flask import Blueprint, Flask, request, jsonify
+import math
+import json
 import pandas as pd
+from flask import Blueprint, Flask, request, jsonify
 
 from src.utils.constants import *
 
@@ -65,6 +67,11 @@ def retrieve_algorithm_list():
 
     all_metrics = Metric.query.filter_by(dataset_hash=dataset_hash).all()
     
+    if all_metrics == []:
+        data = {}
+        data['response'] = 'Information about the requested dataset is unavailable in the Server!'
+        return json.dumps(data)
+
     return metrics_schema.jsonify(all_metrics)
 
 
@@ -75,6 +82,11 @@ def retrieve_algorithm_best_min():
 
     metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.asc()).first()
 
+    if metric is None:
+        data = {}
+        data['response'] = 'Information about the requested dataset is unavailable in the Server!'
+        return json.dumps(data)
+
     return metric_schema.jsonify(metric)
 
 
@@ -84,6 +96,11 @@ def retrieve_algorithm_best_max():
     dataset_hash = request.json[DATASET_HASH].replace("\x00", "")
 
     metric = Metric.query.filter_by(dataset_hash=dataset_hash).order_by(Metric.metric_value.desc()).first()
+
+    if metric is None:
+        data = {}
+        data['response'] = 'Information about the requested dataset is unavailable in the Server!'
+        return json.dumps(data)
 
     return metric_schema.jsonify(metric)
 
@@ -97,6 +114,10 @@ def predict_fmlearn():
     data_meta_features = request.json[META_FEATURES]
 
     data = {}
+
+    if fml._new_recs == math.inf:
+        data['response'] = 'Model not trained!'
+        return json.dumps(data)
 
     # fetching the encoder for target type for encoding the input data
     tt_encoder = fml.get_encoders()[utils.TARGET_TYPE]
