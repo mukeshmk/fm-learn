@@ -78,7 +78,11 @@ class fmlearn:
         # fail safe to train model later when the database is empty
         if self._new_recs == math.inf:
             return
-        
+
+        # fail safe to for first time training of model
+        if self._df['index'].count() <= self.MAX_NEW_RECORDS:
+            return
+
         # throws error if the data is not loaded before training.
         if self._X is None:
             raise RuntimeError('data not loaded! \n`call function `load_data()` before train()')
