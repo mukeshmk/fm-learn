@@ -1,6 +1,6 @@
 import math
-from datetime import datetime
 import pandas as pd
+from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
@@ -38,6 +38,8 @@ class fmlearn:
         return self._X.columns
 
     def new_record_added(self):
+        if self._new_recs == math.inf:
+            self._new_recs = 1
         self._new_recs += 1
         return
 
