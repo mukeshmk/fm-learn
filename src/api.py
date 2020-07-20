@@ -115,7 +115,7 @@ def predict_fmlearn():
 
     data = {}
 
-    if not fml.is_model_trained():
+    if fml._new_recs == math.inf:
         data['response'] = 'Model not trained!'
         return json.dumps(data)
 

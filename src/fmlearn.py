@@ -123,6 +123,9 @@ class fmlearn:
         # or if the retrain flag is set to true because new data has been loaded
         if self._retain == True or self._new_recs >= self.MAX_NEW_RECORDS:
             self.train()
+        
+        if not self.is_model_trained():
+            self.load_data_and_train()
 
         y_pred = self._model.predict(X_pred)
 
