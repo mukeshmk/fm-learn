@@ -12,4 +12,6 @@ The use of **FMLearn** to identify the algorithm with the best performance, that
 
 Proposal: [Federated Meta-Learning](https://www.scss.tcd.ie/joeran.beel/blog/2019/04/08/federated-meta-learning-democratizing-algorithm-selection-across-disciplines-and-software-libraries-proposal/)
 
+Publication: [Federated Meta-Learning: Democratizing Algorithm Selection Across Disciplines and Software Libraries](https://mukeshmk.github.io/#publication)
+
 GitHub Repo for the modified scikit-learn: [mukeshmk/scikit-learn](https://github.com/mukeshmk/scikit-learn)
