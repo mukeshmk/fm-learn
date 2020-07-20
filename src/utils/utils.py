@@ -7,6 +7,11 @@ TARGET_TYPE = 'Target Type'
 ALGORITHM_NAME = 'Algorithm Name'
 METRIC_NAME = 'Metric Name'
 METRIC_VALUE = 'Metric Value'
+DATASET_HASH = 'Dataset Hash'
+# INDEX - a column which gets added because each row in the SQL database creats a new dataframe
+# which is created using `DataFrame.from_dict() which in turn is appended to a master df.
+# TODO: try avoiding this!
+INDEX = 'index'
 
 def get_df_from_db():
     all_metrics = Metric.query.all()
@@ -33,6 +38,10 @@ def get_df_from_db():
         if METRIC_VALUE not in data:
             data[METRIC_VALUE] = []
         data[METRIC_VALUE].append(float(metric.metric_value))
+
+        if DATASET_HASH not in data:
+            data[DATASET_HASH] = []
+        data[DATASET_HASH].append(str(metric.dataset_hash))
         
         df = df.append(pd.DataFrame.from_dict(data))
 
@@ -40,8 +49,15 @@ def get_df_from_db():
 
 
 def get_Xy(df):
-    X = df[df.columns.difference([ALGORITHM_NAME, METRIC_NAME, METRIC_VALUE])]
-    y = df[[ALGORITHM_NAME, METRIC_NAME, METRIC_VALUE]]
+    # the get_df_from_db() method gets (almost) all the rows from the SQL database
+    # this list is used to remove columns which are not required for further processing
+    # as the feature set (X) in the algorithm.
+    # TODO: the function doesn't provide customisability with what X and y are being used.
+    # may be add this in a future release and when updating the algorithm used to predict.
+    unused_columns = [ALGORITHM_NAME, METRIC_NAME, METRIC_VALUE, DATASET_HASH, INDEX]
+
+    X = df[df.columns.difference(unused_columns)]
+    y = df[[DATASET_HASH]]
     return X, y
 
 # One Hot Encoding

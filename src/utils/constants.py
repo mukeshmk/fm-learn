@@ -21,5 +21,17 @@ RETRIEVE = '/retrieve'
 ALL = '/all'
 MAX = '/max'
 MIN = '/min'
+PREDICT = '/predict'
 
-
+# JSON Constants
+ALGORITHM_NAME = 'algorithm_name'
+DATASET_HASH = 'dataset_hash'
+METRIC_NAME = 'metric_name'
+METRIC_VALUE = 'metric_value'
+TARGET_TYPE = 'target_type'
+PARAMS = 'params'
+PARAM_NAME = 'param_name'
+PARAM_VALUE = 'param_value'
+META_FEATURES = 'data_meta_features'
+FEAT_NAME = 'feat_name'
+FEAT_VALUE = 'feat_value'
