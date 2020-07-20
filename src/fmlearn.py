@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -52,6 +53,11 @@ class fmlearn:
 
         # loads data from the SQL database and pre-processes the data.
         self._df = utils.get_df_from_db()
+        
+        # fail safe to load data later when the database is empty
+        if self._df.empty:
+            self._new_recs = math.inf
+            return
         self._shape = self._df.shape
 
         # replacing NA values in the dataframe with -1
@@ -67,6 +73,10 @@ class fmlearn:
         self._encoders[utils.DATASET_HASH] = ds_hash_encoder
 
     def train(self):
+        # fail safe to train model later when the database is empty
+        if self._new_recs == math.inf:
+            return
+        
         # throws error if the data is not loaded before training.
         if self._X is None:
             raise RuntimeError('data not loaded! \n`call function `load_data()` before train()')
