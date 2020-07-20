@@ -43,6 +43,9 @@ class fmlearn:
         self._new_recs += 1
         return
 
+    def is_model_trained(self):
+        return self._model is not None
+
     def load_data(self):
         # force new model to be trained once data has been reloaded
         # retraining of model occurs only when the predict() function is being called
